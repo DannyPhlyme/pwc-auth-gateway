@@ -8,13 +8,13 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post()
-  create(@Body() createAuthDto: RegisterDto) {
-    return this.authService.register(createAuthDto);
+  register(@Body() registerDto: RegisterDto) {
+    return this.authService.register(registerDto);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
+  @Post()
+  login(@Body() registerDto: RegisterDto) {
+    return this.authService.login(registerDto);
   }
 
   @Get(':id')

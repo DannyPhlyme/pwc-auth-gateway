@@ -1,16 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { RegisterDto } from '../dtos/auth/register.dto';
 import { UpdateAuthDto } from '../dtos/auth/update-auth.dto';
+import { Registration } from './../helpers/auth/registration';
+import { Login } from './../helpers/auth/login';
 
 @Injectable()
 export class AuthService {
+  private registration: Registration
+  private authLogin: Login
 
-  register(createAuthDto: RegisterDto) {
-    return 'This action adds a new auth';
+  async register(registerDto: RegisterDto) {
+    return await this.registration.register(registerDto)
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async login(registerDto: RegisterDto) {
+    return await this.authLogin.login(registerDto)
   }
 
   findOne(id: number) {

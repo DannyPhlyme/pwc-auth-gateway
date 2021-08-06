@@ -22,7 +22,7 @@ export class RegisterDto {
 
   marital_status: string
 
-  referrer: string
+  referrer?: string
 
   ip: string
 
