@@ -9,7 +9,7 @@ import { ImageType, Status } from './enum';
 import { Profile } from './profile.entity';
 
 @Entity({
-  name: 'profile_galleries',
+  name: 'profile_galleriess',
 })
 export class ProfileGallery {
   @PrimaryGeneratedColumn()

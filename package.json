@@ -26,6 +26,8 @@
     "@nestjs/core": "^8.0.0",
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/typeorm": "^8.0.2",
+    "@sentry/nextjs": "^6.11.0",
+    "axios": "^0.21.1",
     "mysql2": "^2.3.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
