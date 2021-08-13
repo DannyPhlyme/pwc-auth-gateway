@@ -1,49 +1,37 @@
 import { Injectable } from '@nestjs/common';
-import * as Sentry from '@sentry/nextjs';
 import axios from 'axios';
 import fs from 'fs';
+import { SendEmailDto } from 'src/dtos/send-email.dto';
 
 @Injectable()
 export class UtilitiesService {
-  constructor(
-    private url = 'https://app.pertinence.community',
-    private axiosInstance = axios.create({
-      baseURL: process.env.ELASTIC_EMAIL_URL,
-      params: {
-        apiKey: process.env.ELASTIC_EMAIL_API_KEY,
-      },
-    }),
-  ) {}
-
   /**
    * Mail a user
    */
-  public async sendMail(
-    destination: string,
-    template: number,
-    token: string,
-  ): Promise<void> {
+  public async sendMail(payload: SendEmailDto): Promise<void> {
     try {
-      await this.axiosInstance.post(
+      // const url = 'https://app.pertinence.community';
+      const axiosInstance = axios.create({
+        baseURL: process.env.ELASTIC_EMAIL_URL,
+        params: {
+          apiKey: process.env.ELASTIC_EMAIL_API_KEY,
+        },
+      });
+      await axiosInstance.post(
         '/email/send',
         {},
         {
-          params: {
-            template: template,
-            msgTo: destination,
-            merge_url: this.url + '/reset-password/' + token,
-          },
+          params: payload.data,
         },
       );
-    } catch (error: any) {
-      Sentry.captureException(error);
-    }
+    } catch (error: any) {}
   }
 
   /**
    * Add user to aweber list
    */
   public async addToAweber(email: string, name: string): Promise<void> {
+    const axiosInstance = axios.create();
     const tokenUrl = 'https://auth.aweber.com/oauth2/token';
     const clientId = process.env.AWEBER_CLIENT_ID;
     const url =
@@ -60,7 +48,7 @@ export class UtilitiesService {
     };
 
     try {
-      await this.axiosInstance.post(url, data, {});
+      await axiosInstance.post(url, data, {});
     } catch (error) {
       if (error.response.status == 401) {
         // if status code is 401
@@ -71,7 +59,7 @@ export class UtilitiesService {
           };
 
           this.updateToken(newToken);
-          await axios.post(this.url, data, {
+          await axios.post(token, data, {
             params: {
               client_id: clientId,
               token: token,
@@ -84,9 +72,7 @@ export class UtilitiesService {
                 'Bearer ' + this.readToken()['token']['access_token'],
             },
           });
-        } catch (error) {
-          Sentry.captureException(error);
-        }
+        } catch (error: any) {}
       }
     }
   }
