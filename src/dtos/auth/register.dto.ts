@@ -6,6 +6,8 @@ export class RegisterDto {
   })
   first_name: string
 
+  user_id?: string
+
   @MinLength(2, {
     message:""
   })
@@ -15,7 +17,7 @@ export class RegisterDto {
 
   occupation: string
 
-  @IsEmail({}, { message: "" })
+  @IsEmail({}, { message: "Invalid Email address" })
   email: string
 
   hobbies: string
@@ -29,8 +31,11 @@ export class RegisterDto {
   @MinLength(8, {
     message:""
   })
-  password: string
 
   phone: string
+
+  referral_code: string
+
+  password?: string
 
 } 

@@ -1,26 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from '../dtos/user/create-user.dto';
+import { ChangeEmailDto } from 'src/dtos/user/change-email.dto';
+import { ChangePasswordDto } from 'src/dtos/user/change-password.dto';
+import { ChangeEmail } from 'src/helpers/user/change-email';
+import { ChangePassword } from 'src/helpers/user/change-password';
+import { UserInfo } from 'src/helpers/user/user-info';
 import { UpdateUserDto } from '../dtos/user/update-user.dto';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    private userInfo: UserInfo,
+    private processEmail: ChangeEmail,
+    private processPassword: ChangePassword
+  ) {}
+
+  async getUsers() {
+    return await this.userInfo.findUsers()
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async singleUser(user_id: number) {
+    return await this.userInfo.singleUser(user_id)
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async updateUser(payload: UpdateUserDto, user: any) {
+    return await this.userInfo.updateUser(payload, user)
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async changeEmail(user: any, payload: ChangeEmailDto) {
+    return await this.processEmail.changeEmail(user, payload)
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async changePassword(user: any, payload: ChangePasswordDto) {
+    return await this.processPassword.changePassword(user, payload)
   }
 }

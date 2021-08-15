@@ -35,9 +35,7 @@ export class User {
   @OneToMany(() => ActivityLog, (activity) => activity.user)
   activities: ActivityLog[];
 
-  @OneToOne(() => Profile, {
-    cascade: ['insert'],
-  })
+  @OneToOne(() => Profile)
   @JoinColumn()
   profile: Profile;
 
@@ -66,6 +64,12 @@ export class User {
     default: Status.INACTIVE,
   })
   status: string;
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  email_verified: boolean;
 
   @Column({
     type: 'varchar',

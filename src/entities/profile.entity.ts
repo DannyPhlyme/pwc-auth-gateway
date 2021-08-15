@@ -10,6 +10,7 @@ import {
 import { Gender, MaritalStatus } from './enum';
 import { Address } from './address.entity';
 import { ProfileGallery } from './profile-gallery.entity';
+import { User } from 'src/entities/user.entity';
 
 @Entity({
   name: 'profiles',
@@ -21,6 +22,12 @@ export class Profile {
   @OneToMany(() => ProfileGallery, (gallery) => gallery.profile)
   galleries: ProfileGallery[];
 
+  @OneToOne(() => User, {
+    cascade: true
+  })
+   @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
+  user: User
+
   @OneToOne(() => Address, {
     cascade: true,
   })
@@ -28,10 +35,10 @@ export class Profile {
   address: Address;
 
   @Column({
-    type: 'bigint',
+    type: 'varchar',
     nullable: true,
   })
-  phone: bigint;
+  phone: string
 
   @Column({
     type: 'varchar',

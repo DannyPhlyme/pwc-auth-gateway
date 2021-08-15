@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   BeforeUpdate,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { TokenReason } from './enum';
 import { User } from './user.entity';
@@ -15,7 +16,8 @@ export class Token {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.tokens)
+  @ManyToOne(() => User, { nullable: false})
+  @JoinColumn({name:"userId", referencedColumnName : 'id'})
   user: User;
 
   @Column({

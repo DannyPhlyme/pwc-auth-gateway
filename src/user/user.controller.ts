@@ -1,34 +1,41 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Put, Param, Request, Delete, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from '../dtos/user/create-user.dto';
 import { UpdateUserDto } from '../dtos/user/update-user.dto';
+import { ChangePasswordDto } from 'src/dtos/user/change-password.dto';
+import { JwtAuthGuard } from '../helpers/auth/jwt-auth.guard';
+import { request } from 'express';
+import { ChangeEmailDto } from 'src/dtos/user/change-email.dto';
 
-@Controller('user')
+@Controller('api/v1/user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
-
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  constructor(private readonly userService: UserService) {  }
+  
+  @Get('/')
+  findUsers() {
+    return this.userService.getUsers()
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+  @Get('/:user_id')
+  findOne(@Param('user_id') user_id: number) {
+    return this.userService.singleUser(user_id)
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  @UseGuards(JwtAuthGuard)
+  @Put('/update-profile')
+  updateProfile(@Body() payload: UpdateUserDto, @Request() request: any) {
+    console.log(">>>>>>req", request.user)
+    return this.userService.updateUser(payload, request.user)
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @UseGuards(JwtAuthGuard)
+  @Post('/change-email')
+  ChangeEmail(@Request() request: any, @Body() payload: ChangeEmailDto) {
+    return this.userService.changeEmail(request.user, payload)
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  @Post('/change-password')
+  ChangePassword(@Request() request:any, @Body() payload: ChangePasswordDto ) {
+    return this.userService.changePassword(request.user, payload)
   }
 }
