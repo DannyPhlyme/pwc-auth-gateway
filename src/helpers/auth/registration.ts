@@ -7,9 +7,9 @@ import { Token } from '../../entities/token.entity';
 import { Repository } from 'typeorm';
 import { User } from '../../entities/user.entity';
 import { Password } from '../../entities/password.entity';
-import { TokenReason, MaritalStatus, Gender } from 'src/entities/enum';
+import { TokenReason, MaritalStatus, Gender, emailTemplate } from 'src/entities/enum';
 import { Profile } from '../../entities/profile.entity';
-import { response } from 'express';
+import { UtilitiesService } from '../../utilities/utilities.service';
 
 
 @Injectable()
@@ -27,28 +27,32 @@ export class Registration {
     @InjectRepository(Profile)
     private ProfileRepo: Repository<Profile>,
 
+    private mailUtils: UtilitiesService,
+
     private authUtil: AuthUtils,
     private formatUtil: Formatter
+
   ){}
 
   public async register(registerDto: RegisterDto) {
     try {
-      const { first_name, referrer, phone, email, password, occupation, last_name, hobbies} = registerDto;
-      
-      let referrerObj: any;
+      const { first_name, referrer, phone, email, password, occupation, last_name, hobbies } = registerDto;
+
+      let referrerObj: any
 
       if (referrer) {
         referrerObj = await this.authUtil.findReferrer(referrer)
         if (referrerObj) {
-          //send email
+          await this.mailUtils.sendMail({
+            data: emailTemplate('referralRegistered', email)
+          })
         }
       }
       
       const get_referral_code = await this.authUtil.generateReferralCode(first_name)
 
-      if (get_referral_code.statusCode =! 200) {
+      if (!get_referral_code) {
         return {
-          statusCode: get_referral_code.statusCode,
           message: "Referral code error"
         }
       }
@@ -63,7 +67,6 @@ export class Registration {
         throw new HttpException('Email already Exists', HttpStatus.BAD_REQUEST);
       }
 
-      console.log("======emai", email)
       let new_user: any = this.UserRepo.create({
         referrer_id: referrerObj ? referrerObj.id : null,
         email,
@@ -105,13 +108,18 @@ export class Registration {
         expiry_date: this.formatUtil.calculate_days(7)
       })
 
+      console.log(">>>>>> token", emailToken.token);
+
       user_token = this.TokenRepo.save(user_token)
       //either create a wallet for user
     
-      //send email
+      await this.mailUtils.sendMail({
+        data: emailTemplate('verificationEmail', email, emailToken.token)
+      })
+
+      await this.mailUtils.addToAweber(email, first_name)
 
       //run some events here
-
       return {
         result: new_user,
       }

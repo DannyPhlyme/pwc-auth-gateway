@@ -5,7 +5,6 @@ import {
   BeforeUpdate,
   ManyToOne,
 } from 'typeorm';
-
 import { User } from './user.entity';
 
 @Entity({

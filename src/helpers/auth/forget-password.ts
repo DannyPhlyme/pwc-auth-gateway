@@ -5,10 +5,11 @@ import { User } from '../../entities/user.entity';
 import { RegisterDto } from '../../dtos/auth/register.dto';
 import { Injectable, InternalServerErrorException, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
 import { Token } from '../../entities/token.entity';
-import { TokenReason } from 'src/entities/enum';
+import { emailTemplate, TokenReason } from 'src/entities/enum';
 import { AuthUtils } from './../../utilities/auth';
 import { Formatter } from '../../utilities/Formatter';
 import { ForgotPasswordDto } from 'src/dtos/user/change-password.dto';
+import { UtilitiesService } from 'src/utilities/utilities.service';
 
 @Injectable()
 export class ForgotPassword {
@@ -20,6 +21,8 @@ export class ForgotPassword {
     private TokenRepo: Repository<Token>,
 
     private authUtils: AuthUtils,
+
+    private mailUtils: UtilitiesService,
     
     private formatUtils: Formatter
   ) { }
@@ -61,6 +64,9 @@ export class ForgotPassword {
      await this.TokenRepo.save(tokenInfo)
 
       // send email
+      await this.mailUtils.sendMail({
+        data: emailTemplate('forgotPassword', get_user.email)
+      })
 
       return {
         message: `Successful. A link is sent to your mail to change your password`,

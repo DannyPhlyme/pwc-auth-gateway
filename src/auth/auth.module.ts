@@ -24,6 +24,7 @@ import { Formatter } from 'src/utilities/Formatter';
 import { ConfigModule } from '@nestjs/config';
 import { UserInfo } from 'src/helpers/user/user-info';
 import { UserModule } from '../user/user.module';
+import { UtilitiesService } from '../utilities/utilities.service';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { UserModule } from '../user/user.module';
     ResetPassword,
     AuthUtils,
     Formatter,
+    UtilitiesService,
     UserInfo
   ],
   controllers: [AuthController],

@@ -4,7 +4,7 @@ import { User } from 'src/entities/user.entity';
 import { BadRequestException, NotFoundException, InternalServerErrorException, HttpException, HttpStatus } from '@nestjs/common';
 import { ChangePasswordDto } from 'src/dtos/user/change-password.dto';
 import { Password } from '../../entities/password.entity';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { Status } from 'src/entities/enum';
 
 

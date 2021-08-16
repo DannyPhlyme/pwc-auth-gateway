@@ -2,10 +2,11 @@ import { InternalServerErrorException, NotFoundException, HttpException, HttpSta
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../entities/user.entity';
 import { Repository } from 'typeorm';
-import { Status, TokenReason } from 'src/entities/enum';
+import { emailTemplate, Status, TokenReason } from 'src/entities/enum';
 import { Token } from 'src/entities/token.entity';
 import { AuthUtils } from '../../utilities/auth';
 import { Formatter } from '../../utilities/Formatter';
+import { UtilitiesService } from 'src/utilities/utilities.service';
 
 export class ResendVerificationToken {
   constructor(
@@ -14,10 +15,12 @@ export class ResendVerificationToken {
 
      @InjectRepository(Token)
     private TokenRepo: Repository<Token>,
-     
+    
     private formatUtil: Formatter,
 
-    private authUtils : AuthUtils
+    private authUtils: AuthUtils,
+    
+    private mailUtils: UtilitiesService,
   ) { }
 
   public async resendVerificationToken(user_id: number) {
@@ -60,6 +63,11 @@ export class ResendVerificationToken {
         reason: TokenReason.VERIFY_EMAIL,
         expiry_date: this.formatUtil.calculate_days(7)
       });
+
+      await this.mailUtils.sendMail({
+        data: emailTemplate('verificationEmail', get_user.email)
+      })
+
 
       await this.TokenRepo.save(tokenInfo)
 

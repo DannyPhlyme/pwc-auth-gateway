@@ -3,7 +3,8 @@ import { Token } from '../../entities/token.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../entities/user.entity';
-import { TokenReason } from 'src/entities/enum';
+import { emailTemplate, TokenReason } from 'src/entities/enum';
+import { UtilitiesService } from 'src/utilities/utilities.service';
 
 export class VerifyEmail {
   constructor(
@@ -11,7 +12,9 @@ export class VerifyEmail {
   private TokenRepo: Repository<Token>,
 
   @InjectRepository(User)
-    private UserRepo: Repository<User>
+  private UserRepo: Repository<User>,
+  
+  private mailUtils: UtilitiesService,
   ) { }
   
 
@@ -51,6 +54,9 @@ export class VerifyEmail {
       await this.UserRepo.save(get_user)
 
       // send email
+      await this.mailUtils.sendMail({
+        data: emailTemplate('registerEmail', get_user.email)
+      })
 
       //fire an event activity
 

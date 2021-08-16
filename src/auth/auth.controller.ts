@@ -8,7 +8,8 @@ import { ForgotPasswordDto } from 'src/dtos/user/change-password.dto';
 
 @Controller('api/v1/auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService,
+  ) { }
   @Post('/registration')
   register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
@@ -40,6 +41,7 @@ export class AuthController {
     return this.authService.verifyEmail(token, ip)
   }
 
+  //to be fixed
   @Post('/check-unique-credentials/:credential_name')
   checkUniqueCredentials(@Param('credential_name') credential_name: string, @Body() credential: string) {
     return this.authService.checkUniqueCredentials(credential_name, credential)

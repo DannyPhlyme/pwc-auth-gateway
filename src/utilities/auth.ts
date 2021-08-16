@@ -44,7 +44,7 @@ export class AuthUtils {
     return result;
   }
 
-  public async generateReferralCode(first_name: string): Promise<any> {
+  public async generateReferralCode(first_name: string) {
     try {
       const firstThree = first_name.substring(0, 3);
       const lastThree = this.generateString(3)
@@ -56,7 +56,7 @@ export class AuthUtils {
         }
       })
       if (!referral_code_exist) {
-        return { statusCode: 200, code: referral_code }
+        return { code: referral_code }
       }
       await this.generateReferralCode(first_name)
     } catch (e) {

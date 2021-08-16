@@ -1,12 +1,13 @@
 import { ResetPasswordDto } from './../../dtos/auth/reset-password';
-import { InternalServerErrorException, NotFoundException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Token } from 'src/entities/token.entity';
-import { Status, TokenReason } from 'src/entities/enum';
+import { emailTemplate, Status, TokenReason } from 'src/entities/enum';
 import { User } from 'src/entities/user.entity';
 import { Password } from 'src/entities/password.entity';
 import * as bcrypt from 'bcrypt';
+import { UtilitiesService } from 'src/utilities/utilities.service';
 
 export class ResetPassword {
   constructor(
@@ -17,7 +18,9 @@ export class ResetPassword {
     private UserRepo: Repository<User>,
 
     @InjectRepository(Password)
-    private PasswordRepo: Repository<Password>
+    private PasswordRepo: Repository<Password>,
+
+    private mailUtils: UtilitiesService
 ){}
   
   public async resetPassword(payload: ResetPasswordDto, token: string, ip: string) {
@@ -84,6 +87,9 @@ export class ResetPassword {
       // fire an event, sending the ip address
 
       //Send reset password email
+      await this.mailUtils.sendMail({
+        data: emailTemplate('reset_password', get_user.email,)
+      })
 
       return {
         message: `Password has been reset.`,
