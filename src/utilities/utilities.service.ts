@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import fs from 'fs';
-import { SendEmailDto } from 'src/dtos/send-email.dto';
-
+// import * as fs from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
+import { SendEmailDto } from 'src/dtos/send-email.dto'
 @Injectable()
 export class UtilitiesService {
   /**
@@ -10,14 +10,13 @@ export class UtilitiesService {
    */
   public async sendMail(payload: SendEmailDto): Promise<void> {
     try {
-      // const url = 'https://app.pertinence.community';
       const axiosInstance = axios.create({
         baseURL: process.env.ELASTIC_EMAIL_URL,
         params: {
           apiKey: process.env.ELASTIC_EMAIL_API_KEY,
         },
       });
-      await axiosInstance.post(
+      const response = await axiosInstance.post(
         '/email/send',
         {},
         {
@@ -26,29 +25,34 @@ export class UtilitiesService {
       );
     } catch (error: any) {}
   }
-
   /**
    * Add user to aweber list
    */
-  public async addToAweber(email: string, name: string): Promise<void> {
-    const axiosInstance = axios.create();
+  public async addToAweber(payload): Promise<void> {
     const tokenUrl = 'https://auth.aweber.com/oauth2/token';
     const clientId = process.env.AWEBER_CLIENT_ID;
     const url =
       'https://api.aweber.com/1.0/accounts/1777664/lists/6064064/subscribers';
     const token = this.readToken()['token'];
     const extra = {
-      client_id: process.env.AWEBER_CLIENT_ID,
+      client_id: clientId,
       grant_type: 'refresh_token',
       refresh_token: token['refresh_token'],
     };
-    const data = {
-      email: email,
-      name: name,
-    };
-
+    const axiosInstance = axios.create({
+      params: {
+        client_id: clientId,
+        token: token
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'AWeber-NodeJs-code-sample/1.0',
+        'Authorization': 'Bearer ' + token['access_token']
+      }
+    });
     try {
-      await axiosInstance.post(url, data, {});
+      await axiosInstance.post(url, payload, {});
     } catch (error) {
       if (error.response.status == 401) {
         // if status code is 401
@@ -57,37 +61,36 @@ export class UtilitiesService {
           const newToken = {
             token: response.data,
           };
-
           this.updateToken(newToken);
-          await axios.post(token, data, {
-            params: {
-              client_id: clientId,
-              token: token,
-            },
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-              'User-Agent': 'AWeber-NodeJS-code-sample/1.0',
-              Authorization:
-                'Bearer ' + this.readToken()['token']['access_token'],
-            },
-          });
-        } catch (error: any) {}
+            await axios.post(url, payload, {
+              params: {
+                client_id: clientId,
+                token: token,
+              },
+              headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'User-Agent': 'AWeber-NodeJS-code-sample/1.0',
+                Authorization:
+                  'Bearer ' + this.readToken()['token']['access_token'],
+              },
+            });
+        } catch (error: any) {    
+          console.log(error);
+        }
       }
     }
   }
-
   /**
    * Reads token from the file
    */
   private readToken() {
-    return JSON.parse(fs.readFileSync('credentials.json', 'utf-8').toString());
+    return JSON.parse(readFileSync('credentials.json', 'utf-8').toString());
   }
-
   /**
    * Updates the token in the json file
    */
   private updateToken(token: any) {
-    fs.writeFileSync('credentials.json', JSON.stringify(token));
+    writeFileSync('credentials.json', JSON.stringify(token));
   }
 }

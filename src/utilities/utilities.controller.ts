@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
+import { EventPattern } from '@nestjs/microservices';
 import { SendEmailDto } from '../dtos/send-email.dto';
 import { UtilitiesService } from './utilities.service';
 
@@ -13,5 +14,10 @@ export class UtilitiesController {
   @Get()
   getHello(): string {
     return 'Hello Utility';
+  }
+
+  @EventPattern('hello')
+  async hello(data: string) {
+    console.log(data); 
   }
 }
