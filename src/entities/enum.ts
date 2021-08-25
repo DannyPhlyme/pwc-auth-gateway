@@ -1,4 +1,5 @@
 import { EmailTemplateDto } from '../dtos/auth/emailTemplate.dto';
+
 enum Status {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
@@ -9,6 +10,11 @@ enum TokenReason {
   VERIFY_EMAIL = 'verify-email',
   FORGOT_PASSWORD = 'forgot-password',
   RESET_PASSWORD = 'reset-password'
+}
+
+enum Roles {
+  CLIENT = 'client',
+  ADMIN = 'admin'
 }
 
 enum MaritalStatus {
@@ -37,7 +43,8 @@ const emailTemplate = (emailName:string, email:string, token?:string) => {
     case 'verificationEmail':
       return {
         msgTo: email,
-        template: '3048'
+        template: '3048',
+        token
       }
     case 'forgotPassword':
       return {
@@ -58,4 +65,4 @@ const emailTemplate = (emailName:string, email:string, token?:string) => {
   }
 }
 
-export { Status, TokenReason, MaritalStatus, Gender, ImageType, emailTemplate};
+export { Status, TokenReason, MaritalStatus, Gender, ImageType, emailTemplate, Roles};

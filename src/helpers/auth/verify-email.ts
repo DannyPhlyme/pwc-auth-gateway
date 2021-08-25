@@ -3,7 +3,7 @@ import { Token } from '../../entities/token.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../entities/user.entity';
-import { emailTemplate, TokenReason } from 'src/entities/enum';
+import { emailTemplate, Status, TokenReason } from 'src/entities/enum';
 import { UtilitiesService } from 'src/utilities/utilities.service';
 
 export class VerifyEmail {
@@ -20,7 +20,7 @@ export class VerifyEmail {
 
   public async verifyEmail(token: string, ip: string ) {
     try {
-      const get_token = await this.TokenRepo.findOne({
+      const getToken = await this.TokenRepo.findOne({
         where: {
           token,
           reason: TokenReason.VERIFY_EMAIL
@@ -28,34 +28,35 @@ export class VerifyEmail {
         relations: ['user']
       })
 
-      if (!get_token) {
+      if (!getToken) {
         throw new HttpException(`Invalid Token`, HttpStatus.BAD_REQUEST)
       }
 
       const today = new Date().getTime();
-      const exp_date = get_token.expiry_date.getTime();
+      const expDate = getToken.expiry_date.getTime();
 
-      if (today > exp_date) {
-        await this.TokenRepo.delete({ id: get_token.id });
+      if (today > expDate) {
+        await this.TokenRepo.delete({ id: getToken.id });
         
        throw new HttpException(`This token has expired. Please generate a new one`, HttpStatus.BAD_REQUEST)
       }
 
-      const get_user = await this.UserRepo.findOne({
-        where: { id: get_token.user.id }
+      const getUser = await this.UserRepo.findOne({
+        where: { id: getToken.user.id }
       });
 
-      if (!get_user) {
+      if (!getUser) {
          throw new HttpException(`User Not Found`, HttpStatus.NOT_FOUND) 
       }
 
-      get_user.email_verified = true;
+      getUser.email_verified = true;
+      getUser.status = Status.ACTIVE
 
-      await this.UserRepo.save(get_user)
+      await this.UserRepo.save(getUser)
 
       // send email
       await this.mailUtils.sendMail({
-        data: emailTemplate('registerEmail', get_user.email)
+        data: emailTemplate('registerEmail', getUser.email)
       })
 
       //fire an event activity

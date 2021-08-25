@@ -12,53 +12,53 @@ import { UtilitiesService } from 'src/utilities/utilities.service';
 export class ResetPassword {
   constructor(
     @InjectRepository(Token)
-    private TokenRepo: Repository<Token>,
+    private tokenRepo: Repository<Token>,
 
     @InjectRepository(User)
-    private UserRepo: Repository<User>,
+    private userRepo: Repository<User>,
 
     @InjectRepository(Password)
-    private PasswordRepo: Repository<Password>,
+    private passwordRepo: Repository<Password>,
 
     private mailUtils: UtilitiesService
 ){}
   
   public async resetPassword(payload: ResetPasswordDto, token: string, ip: string) {
-    try {
-      const get_reset_info = await this.TokenRepo.findOne({
+    try {   
+      const getResetInfo = await this.tokenRepo.findOne({
         where: {
-          token: token,
+          token,
           reason: TokenReason.RESET_PASSWORD
         },
         relations:['user']
       })
       
-      if (!get_reset_info) {
+      if (!getResetInfo) {
         throw new HttpException(`Invalid Token Provided`, HttpStatus.BAD_REQUEST)
       }
 
       const today = new Date().getTime();
 
-      const exp_date = get_reset_info.expiry_date.getTime();
-      if (today > exp_date) {
-        await this.TokenRepo.delete(get_reset_info.id)
+      const expDate = getResetInfo.expiry_date.getTime();
+      if (today > expDate) {
+        await this.tokenRepo.delete(getResetInfo.id)
 
          throw new HttpException(`This token has expired. Please generate a new one`, HttpStatus.BAD_REQUEST)
       }
 
-      const get_user = await this.UserRepo.findOne({
+      const getUser = await this.userRepo.findOne ({
         where: {
-          id: get_reset_info.user.id
+          id: getResetInfo.user.id
         },
       });
 
-      if (!get_user) {
+      if (!getUser) {
         throw new HttpException(`User Not Found`, HttpStatus.NOT_FOUND) 
       }
 
-      let dbPassword = await this.PasswordRepo.findOne({
+      let dbPassword = await this.passwordRepo.findOne({
         where: {
-          user: get_user.id,
+          user: getUser.id,
           status: Status.ACTIVE
       }
       })
@@ -66,12 +66,12 @@ export class ResetPassword {
       const passwordMatch = bcrypt.compareSync(payload.password, dbPassword.hash)
       
       if (passwordMatch) {
-        await this.TokenRepo.delete({ token: token });
+        await this.tokenRepo.delete({ token: token });
          throw new HttpException( `You're already using this password. Please use a different password`, HttpStatus.BAD_REQUEST)
       }
 
-      const passwordInfo = this.PasswordRepo.create({
-        user: get_user,
+      const passwordInfo = this.passwordRepo.create({
+        user: getUser,
         hash: payload.password,
         salt: 10,
         status: Status.ACTIVE
@@ -80,15 +80,14 @@ export class ResetPassword {
       dbPassword.status = Status.INACTIVE;
       dbPassword.deleted_at = new Date();
 
-      
-      await this.PasswordRepo.save(dbPassword)
-      await this.PasswordRepo.save(passwordInfo)
+      await this.passwordRepo.save(dbPassword)
+      await this.passwordRepo.save(passwordInfo)
 
       // fire an event, sending the ip address
 
       //Send reset password email
       await this.mailUtils.sendMail({
-        data: emailTemplate('reset_password', get_user.email,)
+        data: emailTemplate('reset_password', getUser.email,)
       })
 
       return {
@@ -96,7 +95,6 @@ export class ResetPassword {
       }
 
     } catch (e) {
-      console.log("====e", e)
       throw new HttpException(e.response ? e.response : `something went wrong`, e.status ? e.status : 500);
     }
   }

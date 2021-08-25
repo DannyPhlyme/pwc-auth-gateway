@@ -11,31 +11,31 @@ import { Status } from 'src/entities/enum';
 export class ChangePassword {
   constructor(
     @InjectRepository(User)
-    private UserRepo: Repository<User>,
+    private userRepo: Repository<User>,
 
     @InjectRepository(Password)
-    private PasswordRepo: Repository<Password>
+    private passwordRepo: Repository<Password>
   ) { }
 
   public async changePassword(user:any, payload: ChangePasswordDto) {
     try {
-      const get_user = await this.UserRepo.findOne({
+      const getUser = await this.userRepo.findOne({
         id: user.id
       })
 
-      if (!get_user) {
+      if (!getUser) {
         throw new NotFoundException({
           message: `User Not Found`
         })
       }
 
-      let db_password = await this.PasswordRepo.findOne({
+      let dbPassword = await this.passwordRepo.findOne({
         where: { user: user.id, status: Status.ACTIVE}
       })
 
-      console.log("=====>db_pass", db_password)
+      console.log("=====>db_pass", dbPassword)
 
-      const passwordMatch = bcrypt.compareSync(payload.old_password, db_password.hash);
+      const passwordMatch = bcrypt.compareSync(payload.oldPassword, dbPassword.hash);
 
       if (!passwordMatch) {
         throw new BadRequestException({
@@ -43,33 +43,31 @@ export class ChangePassword {
         })
       }
 
-      if (payload.new_password == payload.old_password) {
+      if (payload.newPassword == payload.oldPassword) {
         throw new BadRequestException({
           message: `Old Password can not be the same with New password`,
         })
       }
 
-      db_password.status = Status.INACTIVE;
-      db_password.deleted_at = new Date()
+      dbPassword.status = Status.INACTIVE;
+      dbPassword.deleted_at = new Date()
 
-      await this.PasswordRepo.save(db_password)
+      await this.passwordRepo.save(dbPassword)
 
-      const newPassword = this.PasswordRepo.create({
+      const newPassword = this.passwordRepo.create({
         user: user.id,
-        hash: payload.new_password,
+        hash: payload.newPassword,
         salt: 10,
         status: Status.ACTIVE
       });
 
-      await this.PasswordRepo.save(newPassword)
+      await this.passwordRepo.save(newPassword)
 
       return {
-        statusCode: 200,
         message: `Password successfully changed`,
       }
 
     } catch (e) {
-      console.log("=====e", e)
        throw new HttpException(e.response ? e.response : `Error in processing user registration`, e.status ? e.status : 500);
     }
   }

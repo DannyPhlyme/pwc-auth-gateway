@@ -1,7 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
-import { InternalServerErrorException, NotFoundException, Injectable, HttpStatus, HttpException } from '@nestjs/common';
+import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import { UpdateUserDto } from '../../dtos/user/update-user.dto';
 import { Profile } from 'src/entities/profile.entity';
 
@@ -9,21 +9,21 @@ import { Profile } from 'src/entities/profile.entity';
 export class UserInfo {
   constructor(
     @InjectRepository(User)
-    private UserRepo: Repository<User>,
+    private userRepo: Repository<User>,
 
     @InjectRepository(Profile)
-    private ProfileRepo: Repository<Profile>
+    private profileRepo: Repository<Profile>
   ) { }
 
   public async findUsers() {
     try {
-      const get_users = await this.UserRepo.find({});
-      if (!get_users) {
+      const getUsers = await this.userRepo.find({});
+      if (!getUsers) {
         throw new HttpException(`users not found`, HttpStatus.NOT_FOUND);
       }
 
       return {
-        results: get_users ,
+        results: getUsers ,
         message: `Users fetch successful`
       }
     } catch (e) {
@@ -31,19 +31,19 @@ export class UserInfo {
     }
   }
 
-  public async singleUser(user_id: number) {
+  public async singleUser(user_id: number) {    
     try {
-      const get_user = await this.UserRepo.findOne({
+      const getUser = await this.userRepo.findOne({
         where: {
           id: user_id
         }
       })
 
-      if (!get_user) {
+      if (!getUser) {
           throw new HttpException(`User Not Found`, HttpStatus.NOT_FOUND);
       }
       return {
-        user: get_user,
+        user: getUser,
         message: `User fetch Successfully`
       }
 
@@ -52,30 +52,46 @@ export class UserInfo {
     }
   }
 
+  public async getProfile(user: any) {
+    try {
+      const userProfile = await this.profileRepo.findOne({
+        where: {
+          user: user.id
+        }
+      });
+      
+      if (!userProfile) {
+        throw new HttpException(`User Profile Not Found`, HttpStatus.NOT_FOUND)
+      }
+
+      return { userProfile }
+    } catch (e) {
+      throw new HttpException(e.response ? e.response : `Error in processing user registration`, e.status ? e.status : 500);
+    }
+  }
+
   public async updateUser(payload: UpdateUserDto, user: any) {
     try {
-      let get_user = await this.UserRepo.findOne({
+      let getUser = await this.userRepo.findOne({
         where: {
           id: user.id
         }
       })
 
-      if (!get_user) {
-        throw new NotFoundException({
-          message: `User Not Found`
-        })
+      if (!getUser) {
+        throw new HttpException( `User Not Found`
+        , HttpStatus.NOT_FOUND)
       }
 
-      get_user.first_name = payload.first_name;
-      get_user.last_name = payload.last_name;
+      getUser.first_name = payload.first_name;
+      getUser.last_name = payload.last_name;
 
 
-      let profile = await this.ProfileRepo.findOne({user: get_user})
+      let profile = await this.profileRepo.findOne({user: getUser})
  
       if (!profile) {
-        throw new NotFoundException({
-          message: `Profile Does Not Exist`,
-        })
+        throw new HttpException(`Profile Does Not Exist`,
+         HttpStatus.NOT_FOUND)
       }
 
       profile.phone= payload.phone
@@ -83,12 +99,12 @@ export class UserInfo {
       profile.marital_status= payload.marital_status
       profile.hobbies= payload.hobbies
       profile.occupation= payload.occupation
-      profile.user = get_user;
+      profile.user = getUser;
     
       //fire an Event
-      await this.UserRepo.save(get_user)
+      await this.userRepo.save(getUser)
 
-      await this.ProfileRepo.save(profile)
+      await this.profileRepo.save(profile)
 
       return {
         results : {profile}

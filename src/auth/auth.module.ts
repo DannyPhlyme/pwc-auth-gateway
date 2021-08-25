@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import {TypeOrmModule} from '@nestjs/Typeorm';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
@@ -9,7 +9,7 @@ import { JwtStrategy } from 'src/helpers/auth/jwt-strategy';
 import { Registration } from 'src/helpers/auth/registration';
 import { Login } from 'src/helpers/auth/login';
 import { ForgotPassword } from '../helpers/auth/forget-password';
-import { ResendVerificationToken } from 'src/helpers/auth/resend-verification-token';
+import { ResendToken } from 'src/helpers/auth/resend-token';
 import { VerifyEmail } from 'src/helpers/auth/verify-email';
 import { ReferralCredential } from 'src/helpers/auth/referral-credentials';
 import { ResetPassword } from 'src/helpers/auth/reset-password';
@@ -25,6 +25,9 @@ import { ConfigModule } from '@nestjs/config';
 import { UserInfo } from 'src/helpers/user/user-info';
 import { UserModule } from '../user/user.module';
 import { UtilitiesService } from '../utilities/utilities.service';
+import { Role } from 'src/entities/role.entity';
+import { Permission } from 'src/entities/permission.entity';
+import { AuthMiddleware } from '../middleware/auth.middleware';
 
 @Module({
   imports: [
@@ -41,6 +44,8 @@ import { UtilitiesService } from '../utilities/utilities.service';
       Password,
       LoginHistory,
       Profile,
+      Role,
+      Permission
     ]),
   ],
   providers: [
@@ -49,7 +54,7 @@ import { UtilitiesService } from '../utilities/utilities.service';
     Registration,
     Login,
     ForgotPassword,
-    ResendVerificationToken,
+    ResendToken,
     VerifyEmail,
     ReferralCredential,
     ResetPassword,
@@ -60,4 +65,9 @@ import { UtilitiesService } from '../utilities/utilities.service';
   ],
   controllers: [AuthController],
 })
-export class AuthModule {}
+export class AuthModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply()
+    .forRoutes({ path:'api/v1/auth/*', method: RequestMethod.GET })
+  }
+}

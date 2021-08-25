@@ -1,42 +1,52 @@
 import {
-  BeforeUpdate,
-  Column,
   Entity,
-  ManyToOne,
+  Column,
   PrimaryGeneratedColumn,
+  BeforeUpdate,
+  OneToMany,
+  OneToOne,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
 } from 'typeorm';
+import { Permission } from './permission.entity';
 import { User } from './user.entity';
 
 @Entity({
-  name: 'login_histories',
+  name: 'roles',
 })
-export class LoginHistory {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @ManyToOne(() => User, (user) => user.histories)
-  user: User;
+export class Role {
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
   @Column({
     type: 'varchar',
-    length: 20,
+    length: 255,
     nullable: true,
   })
-  ip: string;
+  name: string;
 
-  @Column({
-    type: 'timestamp',
+  @OneToMany(() => User, user => user.role)
+  user: User
+
+  @OneToMany(() => Permission, permission => permission.role)
+  permissions: Permission[]
+
+   @Column({
+    type: 'varchar',
+    length: 255,
     nullable: true,
   })
-  login_date: Date;
+  description: string;
 
-  @Column({
-    type: 'timestamp',
+   @Column({
+    type: 'boolean',
+    default: false,
     nullable: true,
   })
-  logout_date: Date; 
+  active: boolean
 
-  @Column({
+   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })

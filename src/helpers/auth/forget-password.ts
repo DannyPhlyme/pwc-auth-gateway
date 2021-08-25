@@ -15,10 +15,10 @@ import { UtilitiesService } from 'src/utilities/utilities.service';
 export class ForgotPassword {
   constructor(
     @InjectRepository(User)
-    private UserRepo: Repository<User>,
+    private userRepo: Repository<User>,
 
     @InjectRepository(Token)
-    private TokenRepo: Repository<Token>,
+    private tokenRepo: Repository<Token>,
 
     private authUtils: AuthUtils,
 
@@ -31,41 +31,40 @@ export class ForgotPassword {
     try {
       const { email } = payload;
 
-      const get_user = await this.UserRepo.findOne({ where: { email } });
+      const getUser = await this.userRepo.findOne({ where: { email } });
       
-      if (!get_user) {
-        throw new HttpException(`User Does not Exist`, HttpStatus.NOT_FOUND)
+      if (!getUser) {
+        throw new HttpException(`This Email Does not Exist`, HttpStatus.NOT_FOUND)
       }
 
-      const token = await this.TokenRepo.findOne({
+      const token = await this.tokenRepo.findOne({
         where: {
-          user: get_user.id,
+          user: getUser.id,
           reason: TokenReason.RESET_PASSWORD
         }
       })
 
       if (token) {
-        await this.TokenRepo.delete({id: token.id})
+        await this.tokenRepo.delete({id: token.id})
       }
 
-      const new_token = await this.authUtils.generateEmailToken()
+      const newToken = await this.authUtils.generateEmailToken()
 
-      if (new_token.statusCode != 200) {
-        return new_token
+      if (newToken.statusCode != 200) {
+        return newToken
       }
 
-      const tokenInfo = this.TokenRepo.create({
-        user: get_user,
-        token: new_token.token,
+      const tokenInfo = this.tokenRepo.create({
+        user: getUser,
+        token: newToken.token,
         reason: TokenReason.RESET_PASSWORD,
         expiry_date: this.formatUtils.calculate_minutes(15)
       })
 
-     await this.TokenRepo.save(tokenInfo)
-
-      // send email
+      await this.tokenRepo.save(tokenInfo)
+      
       await this.mailUtils.sendMail({
-        data: emailTemplate('forgotPassword', get_user.email)
+        data: emailTemplate('forgotPassword', getUser.email)
       })
 
       return {

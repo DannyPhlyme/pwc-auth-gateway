@@ -13,10 +13,10 @@ import { User } from './user.entity';
   name: 'tokens',
 })
 export class Token {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @ManyToOne(() => User, { nullable: false})
+  @ManyToOne(() => User)
   @JoinColumn({name:"userId", referencedColumnName : 'id'})
   user: User;
 

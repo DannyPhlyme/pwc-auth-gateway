@@ -14,8 +14,8 @@ import * as bcrypt from "bcrypt"
   name: 'passwords',
 })
 export class Password {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @ManyToOne(() => User, (user) => user.passwords)
   user: User;

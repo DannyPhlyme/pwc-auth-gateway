@@ -7,19 +7,19 @@ import { NotFoundException, InternalServerErrorException } from '@nestjs/common'
 export class ProfileInfo {
   constructor(
     @InjectRepository(User)
-    private UserRepo: Repository<User>,
+    private userRepo: Repository<User>,
   ){}
   
   public async getUserProfile(user: any) {
     try {
-      const get_user = this.UserRepo.findOne({
+      const getUser = this.userRepo.findOne({
         where: {
           id: user.id
         },
         relations: ['profile']
       });
       
-      if (!get_user) {
+      if (!getUser) {
         throw new NotFoundException({
           message: `User Not Found`
         })

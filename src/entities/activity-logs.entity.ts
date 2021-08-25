@@ -11,8 +11,8 @@ import { User } from './user.entity';
   name: 'activity_logs',
 })
 export class ActivityLog {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @ManyToOne(() => User, (user) => user.activities)
   user: User;

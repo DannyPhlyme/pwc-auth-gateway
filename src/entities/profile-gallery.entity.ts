@@ -12,8 +12,8 @@ import { Profile } from './profile.entity';
   name: 'profile_galleries',
 })
 export class ProfileGallery {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @ManyToOne(() => Profile, (profile) => profile.galleries)
   profile: Profile;

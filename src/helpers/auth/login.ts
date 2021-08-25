@@ -1,5 +1,4 @@
 import { AuthUtils } from '../../utilities/auth';
-import { RegisterDto } from '../../dtos/auth/register.dto';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../entities/user.entity';
@@ -9,7 +8,7 @@ import { LoginDto } from '../../dtos/auth/login.dto';
 export class Login {
   constructor(
     @InjectRepository(User)
-    private UserRepo: Repository<User>,
+    private userRepo: Repository<User>,
 
     private util: AuthUtils
   ){}
@@ -18,20 +17,20 @@ export class Login {
     const { ip, email, password } = payload;
 
     try {
-      const get_user = await this.UserRepo.findOne({ where: { email } });
+      const getUser = await this.userRepo.findOne({ where: { email } });
 
-      if (!get_user) {
-        throw new HttpException(`Invalid Login Credentials b`, HttpStatus.BAD_REQUEST )
+      if (!getUser) {
+        throw new HttpException(`Invalid Login Credentials`, HttpStatus.BAD_REQUEST )
       }
 
-      const generate_auth = await this.util.authenticateUser(get_user, password, ip)
+      const generateAuth = await this.util.authenticateUser(getUser, password, ip)
 
-      if (generate_auth) {
-        return generate_auth;
+      if (generateAuth) {
+        return generateAuth;
       }
 
       return {
-        results: {...generate_auth}
+        results: {...generateAuth}
       }
 
     } catch (e) {

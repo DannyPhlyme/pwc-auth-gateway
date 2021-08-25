@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestMiddleware, MiddlewareConsumer, RequestMethod, NestModule } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { ChangeEmail } from '../helpers/user/change-email';
@@ -14,11 +14,18 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from '../helpers/auth/jwt-strategy';
 import { PassportModule } from '@nestjs/passport';
+import { AuthMiddleware} from 'src/middleware/auth.middleware';
+import { Role } from 'src/entities/role.entity';
+import { Permission } from 'src/entities/permission.entity';
+import { AuthUtils } from '../utilities/auth';
+import { AdminMiddleware } from 'src/middleware/admin.middleware';
+import { UserReferrer } from '../helpers/user/referrer';
+import { Formatter } from 'src/utilities/Formatter';
 
 @Module({
   controllers: [UserController],
   imports: [
-    PassportModule,
+  PassportModule,
     JwtModule.register({
       secret: process.env.SECRET_KEY,
       signOptions: { expiresIn: '1d' },
@@ -29,6 +36,8 @@ import { PassportModule } from '@nestjs/passport';
       Password,
       LoginHistory,
       Profile,
+      Role,
+      Permission
     ]),
   ],
   providers: [
@@ -37,7 +46,25 @@ import { PassportModule } from '@nestjs/passport';
     ChangeEmail,
     ChangePassword,
     UserInfo,
-    ConfigService
+    ConfigService,
+    AuthUtils,
+    UserReferrer,
+    Formatter
   ]
 })
-export class UserModule {}
+export class UserModule implements NestModule {
+  async configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AdminMiddleware)
+      .exclude(
+        'api/v1/user/:user_id',
+        '/api/v1/user/update-profile',
+        '/api/v1/user/profile',
+        '/api/v1/user/change-email',
+        '/api/v1/user/change-password',
+        '/api/v1/user/user-referrer',
+        '/api/v1/user/single-referrer/:user_id',
+      )
+       .forRoutes(UserController)
+  }
+}
