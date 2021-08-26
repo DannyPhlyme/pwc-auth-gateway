@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
-import {TypeOrmModule} from '@nestjs/Typeorm';
+import {TypeOrmModule} from '@nestjs/typeorm';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 // import { TypeOrmModule } from '@nestjs/typeorm';
