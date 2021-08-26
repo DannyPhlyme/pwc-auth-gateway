@@ -24,12 +24,7 @@
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^1.0.1",
     "@nestjs/core": "^8.0.0",
-<<<<<<< HEAD
     "@nestjs/microservices": "^8.0.6",
-=======
-    "@nestjs/jwt": "^8.0.0",
-    "@nestjs/passport": "^8.0.1",
->>>>>>> 5665fef976d7613c6803eeab7e35bc014a4eef61
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/typeorm": "^8.0.2",
     "@sentry/nextjs": "^6.11.0",
@@ -39,13 +34,7 @@
     "bcrypt": "^5.0.1",
     "fs": "0.0.1-security",
     "mysql2": "^2.3.0",
-<<<<<<< HEAD
     "redis": "^3.1.2",
-=======
-    "passport": "^0.4.1",
-    "passport-jwt": "^4.0.0",
-    "pg": "^8.7.1",
->>>>>>> 5665fef976d7613c6803eeab7e35bc014a4eef61
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
