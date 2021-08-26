@@ -1,4 +1,4 @@
-import * as bcrypt from "bcrypt"
+// import { bcrypt } from 'bcrypt';
 import {  HttpException, InternalServerErrorException, Injectable, HttpStatus } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -9,6 +9,7 @@ import { Token } from "src/entities/token.entity";
 import { Password } from '../entities/password.entity';
 import { Status, TokenReason } from "src/entities/enum";
 import { Formatter } from "./Formatter";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthUtils {
