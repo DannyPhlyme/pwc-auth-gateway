@@ -4,16 +4,18 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   BeforeUpdate,
+  BeforeInsert,
 } from 'typeorm';
 import { Status } from './enum';
 import { User } from './user.entity';
+import * as bcrypt from "bcrypt"
 
 @Entity({
   name: 'passwords',
 })
 export class Password {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @ManyToOne(() => User, (user) => user.passwords)
   user: User;
@@ -22,7 +24,7 @@ export class Password {
     type: 'varchar',
     length: 255,
   })
-  salt: string;
+  salt: number;
 
   @Column({
     type: 'varchar',
@@ -54,6 +56,15 @@ export class Password {
     nullable: true,
   })
   deleted_at: Date;
+
+  @BeforeInsert()
+  async hashPassword() {
+    this.hash = await bcrypt.hash(this.hash, 10);
+  }
+
+  async comparePassword(attempt: string){
+    return await bcrypt.compare(attempt, this.hash);
+  };
 
   @BeforeUpdate()
   updateTimestamp() {

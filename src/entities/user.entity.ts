@@ -6,6 +6,8 @@ import {
   OneToMany,
   OneToOne,
   JoinColumn,
+  ManyToMany,
+  ManyToOne,
 } from 'typeorm';
 import { LoginHistory } from './login-history.entity';
 import { Status } from './enum';
@@ -13,13 +15,14 @@ import { Password } from './password.entity';
 import { Token } from './token.entity';
 import { ActivityLog } from './activity-logs.entity';
 import { Profile } from './profile.entity';
+import { Role } from './role.entity';
 
 @Entity({
   name: 'users',
 })
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
   @OneToMany(() => LoginHistory, (history) => history.user, {
     cascade: ['insert'],
@@ -30,16 +33,14 @@ export class User {
   passwords: Password[];
 
   @OneToMany(() => Token, (token) => token.user)
-  tokens: Token[];
+  tokens: Token[]
+
+  @ManyToOne(() => Role, role => role.user)
+  @JoinColumn({name: 'roleId', referencedColumnName:'id'})
+  role: Role
 
   @OneToMany(() => ActivityLog, (activity) => activity.user)
   activities: ActivityLog[];
-
-  @OneToOne(() => Profile, {
-    cascade: ['insert'],
-  })
-  @JoinColumn()
-  profile: Profile;
 
   @Column({
     type: 'varchar',
@@ -66,6 +67,12 @@ export class User {
     default: Status.INACTIVE,
   })
   status: string;
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  email_verified: boolean;
 
   @Column({
     type: 'varchar',

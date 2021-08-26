@@ -9,11 +9,11 @@ import { ImageType, Status } from './enum';
 import { Profile } from './profile.entity';
 
 @Entity({
-  name: 'profile_galleriess',
+  name: 'profile_galleries',
 })
 export class ProfileGallery {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @ManyToOne(() => Profile, (profile) => profile.galleries)
   profile: Profile;
@@ -26,7 +26,7 @@ export class ProfileGallery {
 
   @Column({
     type: 'varchar',
-    length: 1000,
+     length: 1000,
   })
   image: string;
 

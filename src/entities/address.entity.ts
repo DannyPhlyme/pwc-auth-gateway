@@ -4,8 +4,8 @@ import { Entity, Column, PrimaryGeneratedColumn, BeforeUpdate } from 'typeorm';
   name: 'addresses',
 })
 export class Address {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({
     type: 'varchar',

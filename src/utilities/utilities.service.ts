@@ -2,7 +2,12 @@ import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 // import * as fs from 'fs';
 import { readFileSync, writeFileSync } from 'fs';
+<<<<<<< HEAD
 import { SendEmailDto } from 'src/dtos/send-email.dto'
+=======
+import { AweberDto, SendEmailDto } from 'src/dtos/auth/send-email.dto';
+
+>>>>>>> 5665fef976d7613c6803eeab7e35bc014a4eef61
 @Injectable()
 export class UtilitiesService {
   /**
@@ -23,6 +28,7 @@ export class UtilitiesService {
           params: payload.data,
         },
       );
+      
     } catch (error: any) {}
   }
   /**
@@ -51,6 +57,10 @@ export class UtilitiesService {
         'Authorization': 'Bearer ' + token['access_token']
       }
     });
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 5665fef976d7613c6803eeab7e35bc014a4eef61
     try {
       await axiosInstance.post(url, payload, {});
     } catch (error) {

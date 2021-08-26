@@ -6,32 +6,36 @@ import {
   OneToOne,
   JoinColumn,
   OneToMany,
+  Unique,
 } from 'typeorm';
 import { Gender, MaritalStatus } from './enum';
 import { Address } from './address.entity';
 import { ProfileGallery } from './profile-gallery.entity';
+import { User } from 'src/entities/user.entity';
 
 @Entity({
   name: 'profiles',
 })
 export class Profile {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @OneToMany(() => ProfileGallery, (gallery) => gallery.profile)
-  galleries: ProfileGallery[];
-
-  @OneToOne(() => Address, {
-    cascade: true,
-  })
-  @JoinColumn()
-  address: Address;
+  galleries: ProfileGallery[]
 
   @Column({
-    type: 'bigint',
+    type: 'varchar',
     nullable: true,
   })
-  phone: bigint;
+  phone: string
+
+  @OneToOne(() => User)
+   @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
+  user: User
+
+  @OneToOne(() => Address)
+  @JoinColumn()
+  address: Address;
 
   @Column({
     type: 'varchar',
