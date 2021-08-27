@@ -35,7 +35,6 @@ export class ChangeEmail {
           throw new HttpException( `User Not Found`, HttpStatus.NOT_FOUND)
       }
 
-      console.log('======getUser', getUser)
       let oldEmail = getUser.email;
       
       if (oldEmail === email) {

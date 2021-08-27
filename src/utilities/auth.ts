@@ -53,7 +53,7 @@ export class AuthUtils {
 
       const referralCodeExist = await this.userRepo.findOne({
         where: {
-          referralCode : referralCode
+          referral_code : referralCode
         }
       })
       if (!referralCodeExist) {
@@ -71,7 +71,7 @@ export class AuthUtils {
   public async findReferrer(code: string) {
       const referrer = await this.userRepo.findOne({
         where: {
-          referralCode : code
+          referral_code : code
         }
       })
     if (!referrer) {
@@ -109,7 +109,7 @@ export class AuthUtils {
       await this.loginHistoryRepo.save(userHistory)
 
       const refreshed = this.tokenRepo.create({
-        token: this.generateString(30),
+        token: this.generateString(150),
         reason: TokenReason.REFRESH_TOKEN,
         expiry_date: this.formatUtil.calculate_days(7),
         user: user.id

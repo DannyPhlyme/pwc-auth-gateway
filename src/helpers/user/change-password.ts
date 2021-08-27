@@ -33,9 +33,7 @@ export class ChangePassword {
         where: { user: user.id, status: Status.ACTIVE}
       })
 
-      console.log("=====>db_pass", dbPassword)
-
-      const passwordMatch = bcrypt.compareSync(payload.oldPassword, dbPassword.hash);
+      const passwordMatch = bcrypt.compareSync(payload.old_password, dbPassword.hash);
 
       if (!passwordMatch) {
         throw new BadRequestException({
@@ -43,7 +41,7 @@ export class ChangePassword {
         })
       }
 
-      if (payload.newPassword == payload.oldPassword) {
+      if (payload.new_password == payload.old_password) {
         throw new BadRequestException({
           message: `Old Password can not be the same with New password`,
         })
@@ -56,7 +54,7 @@ export class ChangePassword {
 
       const newPassword = this.passwordRepo.create({
         user: user.id,
-        hash: payload.newPassword,
+        hash: payload.new_password,
         salt: 10,
         status: Status.ACTIVE
       });

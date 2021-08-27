@@ -128,7 +128,6 @@ export class ResendToken {
         is_revoked: tokenRefreshed.is_revoked
       }
     } catch (e) {
-      console.log(e)
       throw new HttpException(e.response ? e.response : `something went wrong`, e.status ? e.status : 500);
     }
   }

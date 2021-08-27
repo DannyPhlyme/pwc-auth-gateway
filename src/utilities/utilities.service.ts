@@ -76,9 +76,7 @@ export class UtilitiesService {
                   'Bearer ' + this.readToken()['token']['access_token'],
               },
             });
-        } catch (error: any) {    
-          console.log(error);
-        }
+        } catch (error: any) {}
       }
     }
   }

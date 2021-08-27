@@ -57,7 +57,7 @@ export class UserModule implements NestModule {
     consumer
       .apply(AdminMiddleware)
       .exclude(
-        'api/v1/user/:user_id',
+        'api/v1/user/single-user/:user_id',
         '/api/v1/user/update-profile',
         '/api/v1/user/profile',
         '/api/v1/user/change-email',

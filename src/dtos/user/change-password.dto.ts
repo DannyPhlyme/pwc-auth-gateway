@@ -5,13 +5,13 @@ export class ChangePasswordDto{
   @MinLength(8, {
     message:"password must be more than 8 chars"
   })
-  oldPassword: string
+  old_password: string
 
   @IsNotEmpty()
   @MinLength(8, {
     message:"password must be more than 8 chars"
   })
-  newPassword: string
+  new_password: string
 
 } 
 

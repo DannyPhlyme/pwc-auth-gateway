@@ -136,8 +136,6 @@ export class Registration {
         result: newUser
       }
     } catch (e) {
-      console.log('>>>>e', e);
-      
       throw new HttpException(e.response ? e.response : `Error in processing user registration`, e.status ? e.status : 500);
     }
   }

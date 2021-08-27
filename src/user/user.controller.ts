@@ -32,7 +32,8 @@ export class UserController {
     return this.userService.singleReferrer(request.user, user_id)
   }
 
-  @Get('/:user_id')
+  @UseGuards(JwtAuthGuard)
+  @Get('/single-user/:user_id')
   findOne(@Param('user_id') user_id: number) {
     return this.userService.singleUser(user_id)
   }
