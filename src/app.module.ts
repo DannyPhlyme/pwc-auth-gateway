@@ -17,6 +17,12 @@ import { UtilitiesModule } from './utilities/utilities.module';
         username: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
         database: process.env.DB,
+        ssl: true,
+        extra: {
+          ssl: {
+            rejectUnauthorize: false
+          }
+        },
         entities: ['dist/entities/*.entity{.ts,.js}'],
         migrations: ['migrations/*{.ts,.js}'],
         synchronize: true,
